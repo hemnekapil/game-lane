@@ -1,32 +1,47 @@
-import { useEffect, useState } from "react";
-import apiClients from "../services/api-clients";
-import { Text } from "@chakra-ui/react";
-interface Game {
-  id: number;
-  name: string;
-}
-interface FetchGamesResponse {
-  count: number;
-  results: Game[];
-}
+import { Text, Spinner, Box, SimpleGrid } from "@chakra-ui/react";
+import GameCard from "./GameCard";
+import useGames from "../hooks/userGames";
+import GameCardSckeleton from "../components/GameCardSckeleton";
+import GameCradCotainer from "./GameCradCotainer";
 const GameGrid = () => {
-  const [games, setGames] = useState<Game[]>([]);
-  const [error, setError] = useState("");
-  useEffect(() => {
-    apiClients
-      .get<FetchGamesResponse>("/games")
-      .then((res) => setGames(res.data.results))
-      .catch((err) => setError(err.message));
-  });
+  const { games, error, loading } = useGames();
+  const skeltons = [1, 2, 3, 4, 5, 6];
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <Text color="red.500">{error}</Text>;
+  }
+
   return (
-    <>
-      {error && <Text>{error}</Text>}
-      <ul>
-        {games.map((game) => (
-          <li key={game.id}>{game.name}</li>
+    <SimpleGrid
+      columns={{ sm: 1, md: 2, lg: 3, xl: 5 }}
+      padding="10px"
+      spacing={6}
+    >
+      {loading &&
+        skeltons.map((id) => (
+          <GameCradCotainer key={id}>
+            <GameCardSckeleton />
+          </GameCradCotainer>
         ))}
-      </ul>
-    </>
+      {games.map((game) => (
+        <GameCradCotainer key={game.id}>
+          <GameCard game={game} />
+        </GameCradCotainer>
+      ))}
+    </SimpleGrid>
   );
 };
 
