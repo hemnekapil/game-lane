@@ -1,24 +1,15 @@
-import { Text, Spinner, Box, SimpleGrid } from "@chakra-ui/react";
+import { Text, SimpleGrid } from "@chakra-ui/react";
 import GameCard from "./GameCard";
 import useGames from "../hooks/userGames";
 import GameCardSckeleton from "../components/GameCardSckeleton";
 import GameCradCotainer from "./GameCradCotainer";
-const GameGrid = () => {
-  const { games, error, loading } = useGames();
+import { Genre } from "../hooks/useGeneres";
+interface Props {
+  selectedGenre: Genre | null;
+}
+const GameGrid = ({ selectedGenre }: Props) => {
+  const { data, error, isLoading } = useGames(selectedGenre);
   const skeltons = [1, 2, 3, 4, 5, 6];
-
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <Spinner size="xl" />
-      </Box>
-    );
-  }
 
   if (error) {
     return <Text color="red.500">{error}</Text>;
@@ -30,13 +21,13 @@ const GameGrid = () => {
       padding="10px"
       spacing={3}
     >
-      {loading &&
+      {isLoading &&
         skeltons.map((id) => (
           <GameCradCotainer key={id}>
             <GameCardSckeleton />
           </GameCradCotainer>
         ))}
-      {games.map((game) => (
+      {data.map((game) => (
         <GameCradCotainer key={game.id}>
           <GameCard game={game} />
         </GameCradCotainer>
